@@ -146,7 +146,9 @@ Register → Login → Dashboard → Create Post
 
 This application is ready to be deployed:
 - **Frontend**: Deploys seamlessly on Vercel, Netlify, or any static hosting. Ensure `VITE_API_URL` is set to the backend URL.
+  - **Live URL**: https://creators-platform-client.vercel.app/
 - **Backend**: Can be deployed on platforms like Render, Heroku, or DigitalOcean. Configure your environment variables as per the local `.env`.
+  - **Live URL**: https://creator-platform-api-dgyf.onrender.com
 - **Docker**: A `docker-compose.yml` file is provided for containerized deployment and rapid local setup.
 
 ## CI/CD Pipeline
