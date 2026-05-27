@@ -141,3 +141,24 @@ Register → Login → Dashboard → Create Post
 
 - **Backend**: Centralized 4-parameter Express error middleware returns `{ success: false, message }` with correct HTTP status codes (400, 401, 403, 404, 500)
 - **Frontend**: All API calls wrapped in `try/catch`; errors displayed as toast notifications via `react-toastify`
+
+## Deployment
+
+This application is ready to be deployed:
+- **Frontend**: Deploys seamlessly on Vercel, Netlify, or any static hosting. Ensure `VITE_API_URL` is set to the backend URL.
+  - **Live URL**: https://creators-platform-client.vercel.app/
+- **Backend**: Can be deployed on platforms like Render, Heroku, or DigitalOcean. Configure your environment variables as per the local `.env`.
+  - **Live URL**: https://creator-platform-api-dgyf.onrender.com
+- **Docker**: A `docker-compose.yml` file is provided for containerized deployment and rapid local setup.
+
+## CI/CD Pipeline
+
+The project utilizes GitHub Actions for Continuous Integration.
+- Workflows are triggered on pushes and pull requests to the `main` branch.
+- Automated tests are run for both the client and server to ensure code quality and prevent regressions in production.
+
+## Testing
+
+Testing is incorporated into the development lifecycle:
+- Unit and integration tests cover critical paths.
+- Run `npm test` across respective directories to evaluate the health of components and API endpoints.
