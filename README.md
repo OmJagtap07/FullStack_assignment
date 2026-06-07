@@ -2,6 +2,11 @@
 
 A full-stack MERN application that enables authenticated users to create, manage, and organize their blog posts with a clean, modern interface.
 
+## Deployment Links
+
+- **Frontend (Live Application):** [https://creators-platform-client.vercel.app/](https://creators-platform-client.vercel.app/)
+- **Backend (API Base URL):** [https://creator-platform-api-dgyf.onrender.com](https://creator-platform-api-dgyf.onrender.com)
+
 ## Technology Stack
 
 | Layer | Technology |
