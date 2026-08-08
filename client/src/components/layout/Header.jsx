@@ -30,6 +30,12 @@ function Header() {
                             >
                                 Dashboard
                             </NavLink>
+                            <NavLink
+                                to="/sponsorships"
+                                className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}
+                            >
+                                Sponsorships
+                            </NavLink>
                             <span className="nav-user-greeting">Hi, {user.name}</span>
                             <button onClick={logout} className="nav-logout-btn">
                                 Logout

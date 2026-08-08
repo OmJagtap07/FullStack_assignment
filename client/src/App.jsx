@@ -14,6 +14,7 @@ import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import CreatePost from './pages/CreatePost';
 import EditPost from './pages/EditPost';
+import Sponsorships from './pages/Sponsorships';
 
 import ProtectedRoute from './components/common/ProtectedRoute';
 import PublicRoute from './components/common/PublicRoute';
@@ -76,6 +77,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreatePost />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/sponsorships"
+              element={
+                <ProtectedRoute>
+                  <Sponsorships />
                 </ProtectedRoute>
               }
             />

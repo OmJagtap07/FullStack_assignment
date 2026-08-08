@@ -43,9 +43,12 @@ app.get('/api/health', (req, res) => {
     res.json({ message: 'Server is running!' });
 });
 
+import sponsorRoutes from './routes/sponsorRoutes.js';
+
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/sponsorships', sponsorRoutes);
 
 // Note: postRoutes need the Socket.io `io` instance, so they are registered
 // in server.js where Socket.io is initialised. Tests for posts will pass a
