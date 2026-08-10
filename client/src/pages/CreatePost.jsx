@@ -15,6 +15,8 @@ const CreatePost = () => {
         status: 'draft',
     });
     const [isLoading, setIsLoading] = useState(false);
+    const [aiTopic, setAiTopic] = useState('');
+    const [isGenerating, setIsGenerating] = useState(false);
 
     // ── Image upload state ─────────────────────────────────────────
     const [uploading, setUploading] = useState(false);       // true while POST /api/upload is in flight
@@ -57,6 +59,29 @@ const CreatePost = () => {
 
     const handleChange = (e) => {
         setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    // ── AI Generation Logic ────────────────────────────────────────
+    const handleAIGenerate = async () => {
+        if (!aiTopic.trim()) {
+            toast.error('Please enter a topic for the AI to generate content.');
+            return;
+        }
+
+        setIsGenerating(true);
+        try {
+            const response = await api.post('/api/ai/generate', { topic: aiTopic });
+            if (response.data.success && response.data.data) {
+                const { title, content } = response.data.data;
+                setFormData(prev => ({ ...prev, title, content }));
+                toast.success('✨ AI Content Generated Successfully!');
+            }
+        } catch (error) {
+            const msg = error.response?.data?.message || 'Failed to generate AI content.';
+            toast.error(msg);
+        } finally {
+            setIsGenerating(false);
+        }
     };
 
     // ── handleSubmit ───────────────────────────────────────────────
@@ -118,6 +143,36 @@ const CreatePost = () => {
                         <div className="create-header-icon">✍️</div>
                         <h1 className="create-title">New Post</h1>
                         <p className="create-subtitle">Share your ideas with the world</p>
+                    </div>
+
+                    {/* AI Generator Section */}
+                    <div className="ai-generator-section" style={{ padding: '1.5rem', backgroundColor: '#f0fdf4', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid #bbf7d0' }}>
+                        <h3 style={{ marginTop: 0, marginBottom: '0.5rem', color: '#166534', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            ✨ AI Content Generator
+                        </h3>
+                        <p style={{ color: '#15803d', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                            Stuck on what to write? Enter a topic below and let our expert AI generate a title and blog post for you.
+                        </p>
+                        <div className="flex gap-2" style={{ display: 'flex', gap: '0.5rem' }}>
+                            <input
+                                type="text"
+                                value={aiTopic}
+                                onChange={(e) => setAiTopic(e.target.value)}
+                                placeholder="e.g. The impact of quantum computing..."
+                                className="form-input"
+                                style={{ flex: 1 }}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAIGenerate}
+                                disabled={isGenerating}
+                                style={{
+                                    backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem'
+                                }}
+                            >
+                                {isGenerating ? 'Generating...' : 'Generate 🪄'}
+                            </button>
+                        </div>
                     </div>
 
                     <form onSubmit={handleSubmit} className="create-form">
