@@ -7,6 +7,7 @@ import cors from 'cors';
 import userRoutes from './routes/userRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import uploadRoutes from './routes/upload.js';
+import aiRoutes from './routes/aiRoutes.js';
 import errorHandler from './middleware/errorHandler.js';
 import timingMiddleware from './middleware/timing.js';
 
@@ -49,6 +50,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/sponsorships', sponsorRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Note: postRoutes need the Socket.io `io` instance, so they are registered
 // in server.js where Socket.io is initialised. Tests for posts will pass a
