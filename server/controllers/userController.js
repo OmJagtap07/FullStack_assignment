@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
+import { eventLoopLogger } from '../utils/eventLoopLogger.js';
 
 // @desc    Register a new user
 // @route   POST /api/users/register
@@ -29,6 +30,10 @@ export const registerUser = async (req, res) => {
             email,
             password: hashedPassword,
         });
+
+        // ── Event Loop Demonstration ──
+        // This offloads heavy analytics to the Macrotask queue so we don't delay the 201 response.
+        eventLoopLogger(`New user registered: ${user.name}`);
 
         res.status(201).json({
             _id: user._id,
