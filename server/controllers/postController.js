@@ -1,4 +1,5 @@
 import Post from '../models/Post.js';
+import { eventLoopLogger } from '../utils/eventLoopLogger.js';
 
 // Helper: create an error with an HTTP status attached
 const createError = (message, status) => {
@@ -41,6 +42,10 @@ export const createPost = async (req, res, next, io) => {
                 },
             });
         }
+
+        // ── Event Loop Demonstration ──
+        // This offloads heavy analytics to the Macrotask queue so we don't delay the 201 response.
+        eventLoopLogger(`New post created by user ${req.user.name}`);
 
         res.status(201).json({
             success: true,

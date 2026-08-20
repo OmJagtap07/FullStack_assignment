@@ -62,6 +62,6 @@ export const generatePost = async (req, res) => {
             success: false,
             message: 'Failed to generate content via AI',
             error: error.message,
-        });
+        }); 
     }
 };
