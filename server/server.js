@@ -8,6 +8,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import connectDB from './config/db.js';
 import postRoutes from './routes/postRoutes.js';
+import cron from 'node-cron';
+import Post from './models/Post.js';
 
 const PORT = process.env.PORT || 5000;
 
@@ -73,6 +75,22 @@ app.use((req, res, next) => {
     next(err);
 });
 app.use(errorHandler);
+
+// ── Scheduled Cron Jobs ───────────────────────────────────────────────────────
+// Run every day at midnight (0 0 * * *) to delete old drafts
+cron.schedule('0 0 * * *', async () => {
+    console.log('⏰ Running Cron Job: Cleaning up old drafts...');
+    try {
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const result = await Post.deleteMany({
+            status: 'draft',
+            createdAt: { $lt: thirtyDaysAgo }
+        });
+        console.log(`✅ Cron Job finished: Deleted ${result.deletedCount} old drafts.`);
+    } catch (error) {
+        console.error('❌ Cron Job failed:', error);
+    }
+});
 
 // ── Start server ──────────────────────────────────────────────────────────────
 httpServer.listen(PORT, () => {

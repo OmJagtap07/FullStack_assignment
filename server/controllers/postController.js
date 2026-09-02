@@ -1,5 +1,16 @@
 import Post from '../models/Post.js';
 import { eventLoopLogger } from '../utils/eventLoopLogger.js';
+import { createClient } from 'redis';
+
+const redisClient = createClient({
+    url: process.env.REDIS_URL || 'redis://localhost:6379'
+});
+
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+
+if (process.env.REDIS_URL) {
+    redisClient.connect().catch(console.error);
+}
 
 // Helper: create an error with an HTTP status attached
 const createError = (message, status) => {
@@ -69,6 +80,14 @@ export const getPosts = async (req, res, next) => {
         // Number of documents to skip
         const skip = (page - 1) * limit;
 
+        const cacheKey = `posts:${req.user._id}:page:${page}:limit:${limit}`;
+        if (process.env.REDIS_URL && redisClient.isReady) {
+            const cachedPosts = await redisClient.get(cacheKey);
+            if (cachedPosts) {
+                return res.status(200).json(JSON.parse(cachedPosts));
+            }
+        }
+
         // Run data query and count in PARALLEL — saves ~30ms per request
         const [posts, total] = await Promise.all([
             Post.find({ author: req.user._id })
@@ -83,7 +102,7 @@ export const getPosts = async (req, res, next) => {
 
         const totalPages = Math.ceil(total / limit);
 
-        res.status(200).json({
+        const responseData = {
             success: true,
             data: posts,
             pagination: {
@@ -94,7 +113,13 @@ export const getPosts = async (req, res, next) => {
                 hasNextPage: page < totalPages,
                 hasPrevPage: page > 1,
             },
-        });
+        };
+
+        if (process.env.REDIS_URL && redisClient.isReady) {
+            await redisClient.setEx(cacheKey, 60, JSON.stringify(responseData));
+        }
+
+        res.status(200).json(responseData);
     } catch (error) {
         next(error);
     }

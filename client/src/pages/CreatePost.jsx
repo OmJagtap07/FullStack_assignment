@@ -69,16 +69,55 @@ const CreatePost = () => {
         }
 
         setIsGenerating(true);
+        setFormData(prev => ({ ...prev, content: '', title: '' })); // clear old
         try {
-            const response = await api.post('/api/ai/generate', { topic: aiTopic });
-            if (response.data.success && response.data.data) {
-                const { title, content } = response.data.data;
-                setFormData(prev => ({ ...prev, title, content }));
-                toast.success('✨ AI Content Generated Successfully!');
+            const token = localStorage.getItem('token');
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            
+            const response = await fetch(`${apiUrl}/api/ai/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ topic: aiTopic })
+            });
+
+            if (!response.ok) throw new Error('Failed to generate AI content');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let partialLine = '';
+            
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunkStr = decoder.decode(value, { stream: true });
+                const lines = (partialLine + chunkStr).split('\n');
+                
+                // Keep the last partial line for the next iteration
+                partialLine = lines.pop() || '';
+                
+                for (const line of lines) {
+                    if (!line.trim()) continue;
+                    try {
+                        const parsed = JSON.parse(line);
+                        if (parsed.type === 'title') {
+                            setFormData(prev => ({ ...prev, title: parsed.data }));
+                        } else if (parsed.type === 'chunk') {
+                            setFormData(prev => ({ ...prev, content: prev.content + parsed.data }));
+                        } else if (parsed.type === 'metrics') {
+                            toast.info(`💎 Generated using ${parsed.tokens} tokens (Cost: $${parsed.cost})`);
+                        }
+                    } catch(e) {
+                        console.error('Failed to parse chunk:', line);
+                    }
+                }
             }
+            toast.success('✨ AI Content Generated Successfully!');
         } catch (error) {
-            const msg = error.response?.data?.message || 'Failed to generate AI content.';
-            toast.error(msg);
+            toast.error(error.message || 'Failed to generate AI content.');
         } finally {
             setIsGenerating(false);
         }
